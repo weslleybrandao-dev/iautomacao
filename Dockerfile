@@ -1,13 +1,21 @@
 FROM nginx:alpine
 
-# Remove a configuração padrão
+# Remove qualquer configuração padrão anterior
 RUN rm -rf /etc/nginx/conf.d/default.conf
 
-# Copia a nossa configuração do Nginx
-COPY nginx.conf /etc/nginx/conf.d/
+# Cria um arquivo de configuração limpo e direto
+RUN echo 'server { \
+    listen 80; \
+    location / { \
+        root /usr/share/nginx/html; \
+        index index.html index.htm; \
+        try_files $uri $uri/ /index.html; \
+    } \
+}' > /etc/nginx/conf.d/default.conf
 
-# Copia todos os arquivos do site diretamente para a raiz do Nginx
-COPY . /usr/share/nginx/html/
+# Garante que a pasta existe e cria um index.html de teste funcional
+RUN mkdir -p /usr/share/nginx/html && \
+    echo '<h1 style="text-align:center; margin-top:20vh; font-family:Arial;">Site IAutomacao No Ar!</h1>' > /usr/share/nginx/html/index.html
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
